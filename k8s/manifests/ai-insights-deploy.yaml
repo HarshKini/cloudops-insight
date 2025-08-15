@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ai-insights
+  namespace: cloudops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ai-insights
+  template:
+    metadata:
+      labels:
+        app: ai-insights
+    spec:
+      containers:
+        - name: ai-insights
+          image: harshkini9/cloudops-ai-insights:0.1.0
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          env:
+            - name: PROM_URL
+              value: "http://mon-kube-prometheus-stack-prometheus.monitoring.svc:9090"
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-insights
+  namespace: cloudops
+spec:
+  type: NodePort
+  selector:
+    app: ai-insights
+  ports:
+    - name: http
+      port: 8000
+      targetPort: 8000
+      nodePort: 32123
