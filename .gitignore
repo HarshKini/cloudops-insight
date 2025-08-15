@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+# Node/General
+node_modules/
+# Docker
+*.log
+# VSCode
+.vscode/

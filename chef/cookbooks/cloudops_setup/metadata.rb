@@ -1,0 +1,5 @@
+name 'cloudops_setup'
+maintainer 'Harsh Kini'
+license 'MIT'
+version '0.1.0'
+depends ''

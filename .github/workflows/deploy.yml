@@ -1,0 +1,11 @@
+name: ci-cd
+on:
+  push:
+    branches: [ "main" ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Phase 6: build Docker, push, deploy via SSH/Terraform/kubectl
+      - run: echo "CI skeleton ready"
