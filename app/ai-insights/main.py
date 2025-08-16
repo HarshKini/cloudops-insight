@@ -148,7 +148,7 @@ def insights_now():
     # Tiny cost heuristic (static—for demo; you’ll tie Cost Explorer later)
     # t3.medium ~ $0.0416/hr; t3.small ~ $0.0208/hr (Mumbai rough ballpark)
     cost_hint = Insight(
-        title="Cost heuristic",
+        title="Rightsizing hint",
         severity="info",
         description="Approximate instance rightsizing suggestion based on CPU/Memory.",
         recommendations=[
