@@ -1,0 +1,49 @@
+name: build-and-deploy
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - "app/ai-insights/**"
+      - ".github/workflows/ci-cd.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: app/ai-insights
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/cloudops-ai-insights:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/cloudops-ai-insights:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update K8s deployment on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            set -euo pipefail
+            export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+            kubectl -n cloudops set image deployment/ai-insights ai-insights=${{ secrets.DOCKERHUB_USERNAME }}/cloudops-ai-insights:${{ github.sha }}
+            kubectl -n cloudops rollout status deployment/ai-insights
